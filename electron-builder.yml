@@ -1,5 +1,6 @@
-appId: com.electron.app
-productName: my-chat-app
+appId: com.electron.shadow-mesh
+productName: shadow-mesh
+copyright: Copyright © 2026
 directories:
   buildResources: build
 files:
@@ -12,7 +13,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: my-chat-app
+  executableName: shadow-mesh
   signAndEditExecutable: false
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
@@ -40,7 +41,7 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
+  provider: github
   url: https://example.com/auto-updates
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
