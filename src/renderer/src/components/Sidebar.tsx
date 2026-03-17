@@ -105,7 +105,6 @@ export const Sidebar: React.FC<Props> = ({
         setTorStatus(null)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [anonymityMode])
 
   const handleStartTor = async (): Promise<void> => {
@@ -164,34 +163,29 @@ export const Sidebar: React.FC<Props> = ({
   const isJoinDisabled = anonymityMode === 'tor' && torStatus !== true && !isTorStarting
 
   return (
-    <div className="sidebar">
-      <h3 className="sidebar-title">🔐 Secure P2P Chat</h3>
+    <aside className="w-full md:w-80 bg-white border-b md:border-r border-gray-200 shadow-sm md:shadow-lg p-5 overflow-y-auto flex flex-col max-h-[40vh] md:max-h-screen">
+      <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-indigo-700">
+        <span>🔐</span> Secure P2P Chat
+      </h3>
 
       {!isJoined ? (
-        <div className="join-section">
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+        <div className="space-y-4">
+          {/* Name input with random generator */}
+          <div className="flex gap-2">
             <input
               type="text"
               placeholder="Your name"
               value={myName}
               onChange={(e) => onMyNameChange(e.target.value)}
-              className="input"
-              style={{ flex: 1 }}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
             />
             <button
               type="button"
               onClick={() => onMyNameChange(generateRandomName())}
-              className="random-name-button"
+              className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               title="Generate a random name"
-              style={{
-                padding: '8px 12px',
-                background: '#f0f0f0',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
             >
-              🎲 Regenerate
+              🎲
             </button>
           </div>
 
@@ -200,21 +194,23 @@ export const Sidebar: React.FC<Props> = ({
             placeholder="Room ID"
             value={roomId}
             onChange={(e) => onRoomIdChange(e.target.value)}
-            className="input"
             onKeyPress={(e) => e.key === 'Enter' && handleJoin()}
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
           />
+
           <input
             type="password"
             placeholder="Room password"
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
-            className="input"
             onKeyPress={(e) => e.key === 'Enter' && handleJoin()}
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
           />
+
           <select
             value={selectedStrategy}
             onChange={(e) => onStrategyChange(e.target.value as Strategy)}
-            className="select"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 bg-white"
           >
             <option value="mqtt">📡 MQTT (IoT-like)</option>
             <option value="nostr">🐦 Nostr (decentralized relays)</option>
@@ -222,84 +218,77 @@ export const Sidebar: React.FC<Props> = ({
             <option value="ipfs">🪐 IPFS (completely decentralized)</option>
           </select>
 
-          <div style={{ marginTop: '12px' }}>
-            <label style={{ fontSize: '0.9rem', display: 'block', marginBottom: '4px' }}>
-              🕵️ Anonymity network:
+          {/* Anonymity selector */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              🕵️ Anonymity network
             </label>
             <select
               value={anonymityMode}
               onChange={(e) => onAnonymityChange(e.target.value as 'none' | 'tor' | 'i2p')}
-              className="select"
-              style={{ width: '100%' }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 bg-white"
             >
               <option value="none">🌐 Direct connection</option>
               <option value="tor">🧅 Route via Tor (SOCKS5 proxy)</option>
               <option value="i2p">🕸️ Route via I2P (HTTP proxy)</option>
             </select>
-            <p className="note" style={{ marginTop: '4px', fontSize: '0.8rem' }}>
+            <p className="mt-1 text-xs text-gray-500">
               {anonymityMode === 'tor' && 'Requires Tor running locally (SOCKS5 :9050)'}
               {anonymityMode === 'i2p' && 'Requires I2P running locally (HTTP :4444)'}
               {anonymityMode === 'none' && 'Direct connection (no extra proxy)'}
             </p>
           </div>
 
+          {/* Tor advanced settings (only when Tor selected) */}
           {anonymityMode === 'tor' && (
-            <div
-              style={{
-                marginTop: '12px',
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px'
-              }}
-            >
-              <p style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                <strong>Pluggable Transport:</strong> obfs4 (only supported)
+            <div className="p-4 border border-gray-200 rounded-xl bg-gray-50 space-y-3">
+              <p className="text-sm font-medium text-gray-700">
+                Pluggable Transport: <span className="font-mono">obfs4</span>
               </p>
 
-              <label style={{ display: 'block', marginBottom: '4px' }}>
-                <span style={{ fontSize: '0.9rem' }}>Bridge lines (one per line):</span>
+              <label className="block">
+                <span className="text-sm text-gray-600">Bridge lines (one per line):</span>
                 <textarea
                   value={bridgeLines}
                   onChange={(e) => setBridgeLines(e.target.value)}
                   rows={3}
-                  style={{ width: '100%', marginTop: '4px', padding: '4px' }}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-sm"
                   placeholder="obfs4 198.51.100.1:443 0123456789ABCDEF... iat-mode=0"
                 />
               </label>
 
-              <div style={{ marginTop: '12px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-                >
-                  <span style={{ fontSize: '0.9rem' }}>Tor Process:</span>
-                  {torStatus === null ? (
-                    <span>Unknown</span>
-                  ) : torStatus ? (
-                    <span style={{ color: 'green' }}>✅ Running</span>
-                  ) : (
-                    <span style={{ color: 'red' }}>❌ Not Running</span>
-                  )}
-                  <button
-                    onClick={checkTorStatus}
-                    style={{ padding: '2px 8px', fontSize: '0.8rem' }}
-                  >
-                    Refresh
-                  </button>
+              <div className="pt-2 border-t border-gray-200">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Tor Process:</span>
+                  <div className="flex items-center gap-2">
+                    {torStatus === null ? (
+                      <span className="text-gray-500">Unknown</span>
+                    ) : torStatus ? (
+                      <span className="text-green-600 font-medium flex items-center gap-1">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span> Running
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-medium flex items-center gap-1">
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span> Not Running
+                      </span>
+                    )}
+                    <button
+                      onClick={checkTorStatus}
+                      className="px-2 py-1 text-xs bg-gray-200 rounded-md hover:bg-gray-300"
+                    >
+                      Refresh
+                    </button>
+                  </div>
                 </div>
 
                 <button
                   onClick={handleStartTor}
                   disabled={isTorStarting || torStatus === true}
-                  style={{
-                    padding: '6px 12px',
-                    marginBottom: '8px',
-                    background: isTorStarting ? '#ccc' : '#4CAF50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: isTorStarting || torStatus === true ? 'not-allowed' : 'pointer',
-                    width: '100%'
-                  }}
+                  className={`w-full mt-3 px-4 py-2 rounded-xl text-white font-medium transition ${
+                    isTorStarting || torStatus === true
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
                 >
                   {isTorStarting
                     ? 'Starting Tor...'
@@ -310,26 +299,19 @@ export const Sidebar: React.FC<Props> = ({
 
                 <button
                   onClick={() => testTorConnection()}
-                  style={{
-                    padding: '4px 8px',
-                    fontSize: '0.8rem',
-                    background: '#f0f0f0',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    width: '100%'
-                  }}
+                  className="w-full mt-2 px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-xl"
                 >
-                  🔍 Test Tor Connection (check.torproject.org)
+                  🔍 Test Tor Connection
                 </button>
               </div>
 
-              <p style={{ fontSize: '0.8rem', marginTop: '8px', color: '#666' }}>
+              <p className="text-xs text-gray-500">
                 Get bridges from{' '}
                 <a
                   href="https://bridges.torproject.org/options"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline"
                 >
                   Tor Project
                 </a>
@@ -339,35 +321,53 @@ export const Sidebar: React.FC<Props> = ({
 
           <button
             onClick={handleJoin}
-            className="join-button"
             disabled={isJoinDisabled || isTorStarting}
-            style={{ opacity: isJoinDisabled ? 0.6 : 1 }}
+            className={`w-full px-4 py-3 rounded-xl text-white font-medium transition ${
+              isJoinDisabled || isTorStarting
+                ? 'bg-indigo-300 cursor-not-allowed'
+                : 'bg-indigo-600 hover:bg-indigo-700 shadow-md'
+            }`}
           >
             {isTorStarting ? 'Starting Tor...' : 'Join Room'}
           </button>
-          <p className="note">ℹ️ Others join with same Room ID and password</p>
+          <p className="text-xs text-gray-500 text-center">
+            ℹ️ Others join with same Room ID and password
+          </p>
         </div>
       ) : (
-        <div className="room-info">
-          <p className="room-label">
-            Room: <strong>{roomId}</strong>
-          </p>
-          <p className="peer-count">👥 Peers online: {peers.length}</p>
-          <button onClick={onLeave} className="leave-button">
+        <div className="space-y-5">
+          <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+            <p className="text-sm flex items-center gap-2">
+              <span className="font-medium text-indigo-700">Room:</span>
+              <span className="font-mono text-indigo-900 bg-white px-2 py-1 rounded-md text-xs">
+                {roomId}
+              </span>
+            </p>
+            <p className="text-sm mt-2 flex items-center gap-1 text-gray-600">
+              <span>👥</span> Peers online: <span className="font-bold">{peers.length}</span>
+            </p>
+          </div>
+
+          <PeerList peers={peers} myName={myName} />
+
+          <button
+            onClick={onLeave}
+            className="w-full px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition shadow-md"
+          >
             Leave Room
           </button>
-          <PeerList peers={peers} myName={myName} />
         </div>
       )}
 
-      <div className="strategy-info">
-        <p>
-          🛡️ <strong>Using:</strong> {selectedStrategy.toUpperCase()}
+      {/* Strategy info footer */}
+      <div className="mt-6 pt-4 border-t border-gray-200 text-xs text-gray-500">
+        <p className="flex items-center gap-1">
+          <span>🛡️</span> <strong>Using:</strong> {selectedStrategy.toUpperCase()}
         </p>
-        <p className="small-text">
+        <p className="mt-1 leading-relaxed">
           Server only used for discovery • Messages are P2P & end-to-end encrypted
         </p>
       </div>
-    </div>
+    </aside>
   )
 }

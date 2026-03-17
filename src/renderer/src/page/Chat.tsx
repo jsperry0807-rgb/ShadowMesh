@@ -3,7 +3,6 @@ import { useChatRoom } from '../hooks/useChatRoom'
 import { Sidebar } from '../components/Sidebar'
 import { MessageList } from '../components/MessageList'
 import { MessageInput } from '../components/MessageInput'
-import '../assets/chat.css'
 
 export const Chat: React.FC = () => {
   const {
@@ -26,7 +25,8 @@ export const Chat: React.FC = () => {
   } = useChatRoom()
 
   return (
-    <div className="container">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+      {/* Sidebar – full width on mobile, fixed width on desktop */}
       <Sidebar
         isJoined={isJoined}
         roomId={roomId}
@@ -43,9 +43,17 @@ export const Chat: React.FC = () => {
         anonymityMode={anonymityMode}
         onAnonymityChange={setAnonymityMode}
       />
-      <div className="chat-area">
-        <MessageList messages={messages} />
-        {isJoined && <MessageInput onSend={sendMessage} />}
+
+      {/* Chat area – takes remaining height/width */}
+      <div className="flex flex-col flex-1 overflow-hidden bg-white md:rounded-l-none md:shadow-inner">
+        {/* Optional header could be added here */}
+        <MessageList messages={messages} className="flex-1 overflow-y-auto px-4 py-6 space-y-4" />
+
+        {isJoined && (
+          <div className="border-t border-gray-200 bg-gray-50 p-4 md:p-6">
+            <MessageInput onSend={sendMessage} />
+          </div>
+        )}
       </div>
     </div>
   )

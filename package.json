@@ -23,10 +23,12 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@tailwindcss/vite": "^4.2.1",
     "electron-updater": "^6.3.9",
     "https-proxy-agent": "^8.0.0",
     "react-hot-toast": "^2.6.0",
     "socks-proxy-agent": "^9.0.0",
+    "tailwindcss": "^4.2.1",
     "trystero": "^0.22.0"
   },
   "devDependencies": {

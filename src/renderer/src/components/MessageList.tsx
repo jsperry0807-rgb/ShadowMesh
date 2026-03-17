@@ -4,9 +4,10 @@ import { MessageBubble } from './MessageBubble'
 
 interface Props {
   messages: Message[]
+  className?: string
 }
 
-export const MessageList: React.FC<Props> = ({ messages }) => {
+export const MessageList: React.FC<Props> = ({ messages, className = '' }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -14,7 +15,7 @@ export const MessageList: React.FC<Props> = ({ messages }) => {
   }, [messages])
 
   return (
-    <div className="messages-container">
+    <div className={className}>
       {messages.map((msg) => (
         <MessageBubble key={msg.id} message={msg} />
       ))}
