@@ -4,6 +4,7 @@ on:
   push:
     branches: [main] # build on every push to main
     tags: ['v*'] # also on version tags
+  workflow_dispatch:
   pull_request:
     branches: [main]
 
