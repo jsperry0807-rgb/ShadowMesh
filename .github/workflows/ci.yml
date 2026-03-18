@@ -19,6 +19,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Build app (composite action)
         uses: ./.github/actions/build
         with:
