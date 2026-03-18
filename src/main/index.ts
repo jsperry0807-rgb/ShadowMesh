@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, net, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, net, dialog, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -8,16 +8,48 @@ import log from 'electron-log' // Use ES import instead of require()
 
 const torManager = new TorManager()
 
-// Configure autoUpdater logging
-autoUpdater.logger = log // Assign the logger (fixes ESLint require rule)
-log.transports.file.level = 'info' // Directly use log.transports (TypeScript may still complain – see note below)
-autoUpdater.logger.info('Starting auto-updater')
+function enableTorProxy(): void {
+  session.defaultSession
+    .setProxy({
+      proxyRules: 'socks5://127.0.0.1:9050',
+      proxyBypassRules: '' // optionally bypass local addresses
+    })
+    .then(() => {
+      console.log('Tor proxy enabled')
+    })
+    .catch((error) => {
+      console.error('Failed to set Tor proxy:', error)
+    })
+}
 
-// Set the GitHub release feed – REPLACE 'your-username' WITH THE ACTUAL OWNER
+// Call this when Tor is stopped or when user switches to "none"
+function disableProxy(): void {
+  session.defaultSession
+    .setProxy({
+      proxyRules: 'direct://'
+    })
+    .then(() => {
+      console.log('Proxy disabled (direct connection)')
+    })
+    .catch((error) => {
+      console.error('Failed to disable proxy:', error)
+    })
+}
+
+torManager.onReady(enableTorProxy)
+torManager.onStopped(disableProxy)
+
+// Configure autoUpdater logging
+autoUpdater.logger = log
+log.transports.file.level = 'info'
+autoUpdater.logger.info('Starting auto-updater')
+app.commandLine.appendSwitch('--disable-webrtc')
+
+// Set the GitHub release feed
 autoUpdater.setFeedURL({
   provider: 'github',
-  owner: 'your-username',
-  repo: 'fithub',
+  owner: 'jsperry0807-rgb',
+  repo: 'ShadowMesh',
   private: false // set to true if the repository is private
 })
 
@@ -54,10 +86,6 @@ function createWindow(): BrowserWindow {
 }
 
 app.whenReady().then(() => {
-  // Set Tor SOCKS proxy
-  app.commandLine.appendSwitch('proxy-server', 'socks5://127.0.0.1:9050')
-  console.log('Proxy set to:', app.commandLine.getSwitchValue('proxy-server'))
-
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {
@@ -111,7 +139,9 @@ app.whenReady().then(() => {
 
   // IPC handlers for Tor control
   ipcMain.handle('tor-start', async (_event, { bridges, transport }) => {
-    return await torManager.start(bridges, transport)
+    const success = await torManager.start(bridges, transport)
+    // TODO: make sure proxy is running
+    return success
   })
 
   ipcMain.handle('tor-stop', () => {
@@ -150,4 +180,8 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('will-quit', () => {
+  disableProxy()
 })
