@@ -41,7 +41,9 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: github
-  url: https://example.com/auto-updates
+  - provider: github
+    owner: jsperry0807-rgb
+    repo: ShadowMesh
+    releaseType: release
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
