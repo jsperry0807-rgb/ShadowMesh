@@ -40,10 +40,6 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
-publish:
-  - provider: github
-    owner: jsperry0807-rgb
-    repo: ShadowMesh
-    releaseType: release
+publish: null
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
