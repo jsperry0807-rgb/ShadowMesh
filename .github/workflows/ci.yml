@@ -19,10 +19,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build app (composite action)
-        uses: ./.github/actions/build
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build
         with:
           build-script: ${{ matrix.build-script }}
+          upload-artifacts: 'false'
