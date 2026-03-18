@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            build-script: build:win
+          - os: macos-latest
+            build-script: build:mac
+          - os: ubuntu-latest
+            build-script: build:linux
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Build app (composite action)
+        uses: ./.github/actions/build
+        with:
+          build-script: ${{ matrix.build-script }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}

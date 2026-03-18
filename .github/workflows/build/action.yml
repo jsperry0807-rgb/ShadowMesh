@@ -1,0 +1,42 @@
+name: 'Build Electron app'
+description: 'Checkout, install dependencies, build, and upload artifacts'
+inputs:
+  build-script:
+    description: 'npm script to run for the current platform'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Build the app
+      run: npm run ${{ inputs.build-script }}
+      shell: bash
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ runner.os }}-artifacts
+        path: |
+          dist/*.exe
+          dist/*.dmg
+          dist/*.AppImage
+          dist/*.deb
+          dist/*.rpm
+          dist/*.zip
+          !dist/win-ia32-unpacked
+          !dist/win-unpacked
+          !dist/mac
+          !dist/linux-unpacked
+        if-no-files-found: ignore

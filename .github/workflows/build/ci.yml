@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            build-script: build:win
+          - os: macos-latest
+            build-script: build:mac
+          - os: ubuntu-latest
+            build-script: build:linux
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Build app (composite action)
+        uses: ./.github/actions/build
+        with:
+          build-script: ${{ matrix.build-script }}
