@@ -30,44 +30,34 @@ on:
         type: boolean
 
 jobs:
-  # First, checkout the specific branch
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      ref: ${{ steps.set-ref.outputs.ref }}
-    steps:
-      - name: Set branch ref
-        id: set-ref
-        run: echo "ref=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
-
   # Build Windows
   build-windows:
-    needs: prepare
     if: ${{ github.event.inputs.build_windows == 'true' }}
     uses: ./.github/workflows/build-reusable.yml
     with:
-      upload-artifacts: ${{ github.event.inputs.upload_artifacts }}
+      branch: ${{ github.event.inputs.branch }}
+      upload-artifacts: ${{ github.event.inputs.upload_artifacts == 'true' }}
     secrets: inherit
 
   # Build macOS
   build-macos:
-    needs: prepare
     if: ${{ github.event.inputs.build_macos == 'true' }}
     uses: ./.github/workflows/build-reusable.yml
     with:
-      upload-artifacts: ${{ github.event.inputs.upload_artifacts }}
+      branch: ${{ github.event.inputs.branch }}
+      upload-artifacts: ${{ github.event.inputs.upload_artifacts == 'true' }}
     secrets: inherit
 
   # Build Linux
   build-linux:
-    needs: prepare
     if: ${{ github.event.inputs.build_linux == 'true' }}
     uses: ./.github/workflows/build-reusable.yml
     with:
-      upload-artifacts: ${{ github.event.inputs.upload_artifacts }}
+      branch: ${{ github.event.inputs.branch }}
+      upload-artifacts: ${{ github.event.inputs.upload_artifacts == 'true' }}
     secrets: inherit
 
-  # Summary job (optional)
+  # Summary
   summary:
     runs-on: ubuntu-latest
     needs: [build-windows, build-macos, build-linux]
@@ -75,7 +65,7 @@ jobs:
     steps:
       - name: Build Summary
         run: |
-          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Summary for branch: ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Platform | Status | Artifacts |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
