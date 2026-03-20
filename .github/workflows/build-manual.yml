@@ -1,0 +1,84 @@
+name: Manual Build Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'main'
+        type: string
+      build_windows:
+        description: 'Build Windows EXE'
+        required: false
+        default: true
+        type: boolean
+      build_macos:
+        description: 'Build macOS DMG'
+        required: false
+        default: false
+        type: boolean
+      build_linux:
+        description: 'Build Linux AppImage'
+        required: false
+        default: false
+        type: boolean
+      upload_artifacts:
+        description: 'Upload artifacts (for testing)'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  # First, checkout the specific branch
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.set-ref.outputs.ref }}
+    steps:
+      - name: Set branch ref
+        id: set-ref
+        run: echo "ref=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+
+  # Build Windows
+  build-windows:
+    needs: prepare
+    if: ${{ github.event.inputs.build_windows == 'true' }}
+    uses: ./.github/workflows/build-reusable.yml
+    with:
+      upload-artifacts: ${{ github.event.inputs.upload_artifacts }}
+    secrets: inherit
+
+  # Build macOS
+  build-macos:
+    needs: prepare
+    if: ${{ github.event.inputs.build_macos == 'true' }}
+    uses: ./.github/workflows/build-reusable.yml
+    with:
+      upload-artifacts: ${{ github.event.inputs.upload_artifacts }}
+    secrets: inherit
+
+  # Build Linux
+  build-linux:
+    needs: prepare
+    if: ${{ github.event.inputs.build_linux == 'true' }}
+    uses: ./.github/workflows/build-reusable.yml
+    with:
+      upload-artifacts: ${{ github.event.inputs.upload_artifacts }}
+    secrets: inherit
+
+  # Summary job (optional)
+  summary:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos, build-linux]
+    if: always()
+    steps:
+      - name: Build Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Status | Artifacts |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows | ${{ needs.build-windows.result }} | ${{ github.event.inputs.build_windows == 'true' && '✅' || '⏭️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| macOS | ${{ needs.build-macos.result }} | ${{ github.event.inputs.build_macos == 'true' && '✅' || '⏭️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux | ${{ needs.build-linux.result }} | ${{ github.event.inputs.build_linux == 'true' && '✅' || '⏭️' }} |" >> $GITHUB_STEP_SUMMARY
