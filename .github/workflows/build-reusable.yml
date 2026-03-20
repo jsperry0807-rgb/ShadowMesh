@@ -3,6 +3,11 @@ name: Reusable build
 on:
   workflow_call:
     inputs:
+      branch:
+        description: 'Branch to checkout and build'
+        required: true
+        type: string
+        default: 'main'
       upload-artifacts:
         description: 'Whether to upload build artifacts'
         required: false
@@ -25,10 +30,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x.x'
           cache: 'npm'
+          
       - run: npm ci
       - run: npm run ${{ matrix.build-script }}
 
@@ -36,7 +45,7 @@ jobs:
         if: ${{ inputs.upload-artifacts }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-artifacts
+          name: ${{ runner.os }}-artifacts-${{ inputs.branch }}
           path: |
             dist/*.exe
             dist/*.dmg
@@ -49,3 +58,4 @@ jobs:
             !dist/mac
             !dist/linux-unpacked
           if-no-files-found: ignore
+          retention-days: 7
